@@ -39,3 +39,26 @@ io.on('connection', function(socket) {
     socket.broadcast.emit('accept answer', data)
   });
 })
+
+sRoutes = {}
+
+// Offers
+sRoutes.s1_Offer = () => { socket.on('socket 1 offer') }
+sRoutes.s2_Offer = () => { socket.on('scoket 2 offer') }
+sRoutes.s3_Offer = () => { socket.on('socket 3 offer') }
+
+// Answers
+sRoutes.s2Offer = () => { socket.on('socket 2 answer') }
+sRoutes.s3Offer = () => { socket.on('scoket 3 answer') }
+sRoutes.s4Offer = () => { socket.on('socket 4 answer') }
+
+
+
+
+
+
+
+
+
+
+
