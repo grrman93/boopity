@@ -4,7 +4,7 @@ var io = require('socket.io-client');
 
 var socket = io();
 socket.on('ID', function(socketId) {
-navigator.mediaDevices.getUserMedia({ video: {width: 640, height: 480 }, audio: true })
+navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
   .then(function(stream) {
     var video = document.getElementById(socketId);
     video.src = window.URL.createObjectURL(stream);
