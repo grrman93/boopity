@@ -4,8 +4,12 @@ var io = require('socket.io-client');
 
 var socket = io();
 socket.on('ID', function(socketId) {
-navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+navigator.mediaDevices.getUserMedia({ video: {width: 640, height: 480 }, audio: true })
   .then(function(stream) {
+    var video = document.getElementById(socketId);
+    video.src = window.URL.createObjectURL(stream);
+    video.play();
+
       if (socketId === 1) {
         var p4, p3, p2;
         console.log('I AM PEER ', socketId);
