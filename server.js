@@ -35,70 +35,38 @@ io.on('connection', function(socket) {
     console.log('A user disconnected with socket id', socket.id);
   });
 
+  //Peer 4 handlers
   // peer3 to peer4 connection handling
   socket.on('peer3 offer to peer4', function(data) { socket.broadcast.emit('peer3 offer to peer4', data); })
-  socket.on('peer4 answer to peer3', function(data) { socket.broadcast.emit('peer4 answer to peer3', data) })
+  socket.on('peer4 answer to peer3', function(data) { socket.broadcast.emit('peer4 answer to peer3', data); })
   // peer2 to peer4 connection handling
   socket.on('peer2 offer to peer4', function(data) { socket.broadcast.emit('peer2 offer to peer4', data); })
-  socket.on('peer4 answer to peer2', function(data) {socket.broadcast.emit('peer4 answer to peer2', data);})
+  socket.on('peer4 answer to peer2', function(data) {socket.broadcast.emit('peer4 answer to peer2', data); })
   // peer1 to peer4 connection handling
   socket.on('peer1 offer to peer4', function(data) { socket.broadcast.emit('peer1 offer to peer4', data); })
-  socket.on('peer4 answer to peer1', function(data) {socket.broadcast.emit('peer4 answer to peer1', data);})
+  socket.on('peer4 answer to peer1', function(data) {socket.broadcast.emit('peer4 answer to peer1', data); })
 
-
+  // Peer 3 handlers
   // peer2 to peer3 connection handling
   socket.on('peer2 offer to peer3', function(data) { socket.broadcast.emit('peer2 offer to peer3', data); })
-  socket.on('peer3 answer to peer2', function(data) {socket.broadcast.emit('peer3 answer to peer2', data);})
+  socket.on('peer3 answer to peer2', function(data) {socket.broadcast.emit('peer3 answer to peer2', data); })
   // peer1 to peer3 connection handling
   socket.on('peer1 offer to peer3', function(data) { socket.broadcast.emit('peer1 offer to peer3', data); })
-  socket.on('peer3 answer to peer1', function(data) {socket.broadcast.emit('peer3 answer to peer1', data);})
+  socket.on('peer3 answer to peer1', function(data) {socket.broadcast.emit('peer3 answer to peer1', data); })
 
+  //Peer 2 handler
   //peer 1 to peer2 connection handling
   socket.on('peer1 offer to peer2', function(data) { socket.broadcast.emit('peer1 offer to peer2', data); })
-  socket.on('peer2 answer to peer1', function(data) {socket.broadcast.emit('peer2 answer to peer1', data);})
+  socket.on('peer2 answer to peer1', function(data) {socket.broadcast.emit('peer2 answer to peer1', data); })
 
-  // connection handling
-  socket.on('4 connected to 2', function() {
-    console.log('4 connected to 2')
-    socket.broadcast.emit('4 connected to 2')
-  }) 
+  // connection handling, important for the ordering of connections
+  socket.on('4 connected to 2', function() { socket.broadcast.emit('4 connected to 2') }) 
+  socket.on('4 connected to 1', function() { socket.broadcast.emit('4 connected to 1') })
+  socket.on('3 connected to 1', function() { socket.broadcast.emit('3 connected to 1') })
 
-  socket.on('4 connected to 1', function() {
-    socket.broadcast.emit('4 connected to 1')
-  })
-
-  socket.on('3 connected to 1', function() {
-    socket.broadcast.emit('3 connected to 1')
-  })
-
-
-
-  socket.on('offer', function(data) {
-    console.log('making an offer')
-    socket.broadcast.emit('accept offer', data);
-  });
-  socket.on('answer', function(data) {
-    console.log('making an answer')
-    socket.broadcast.emit('accept answer', data)
-  });
-
-  socket.on('connected s3', () => { socket.emit('connected s3') })
-  socket.on('connected s2', () => { socket.emit('connected s2') })
-
-  // Offers
-  socket.on('s1 answer', (data) => { socket.broadcast.emit('accept s1 answer', data) })
-  socket.on('s2 answer', (data) => { socket.broadcast.emit('accept s2 answer', data) })
-  socket.on('s3 answer', (data) => { socket.broadcast.emit('accept s3 answer', data) })
-
-  // Answers
-  socket.on('s3 offer', (data) => { socket.broadcast.emit('accept s3 offer', data) })
-  socket.on('s2 offer', (data) => { socket.broadcast.emit('accept s2 offer', data) })
-  socket.on('s4 offer', (data) => { socket.broadcast.emit('accept s4 offer', data) })
-
-
-  // sRoutes.s3_connected(())
-  
-
+  // testing connections
+  socket.on('2 connected to 1', function() { console.log('SUCCESS?'); socket.emit('2 connected to 1') })
+  socket.on('send test', function() { socket.emit('send test') })
 })
 
 

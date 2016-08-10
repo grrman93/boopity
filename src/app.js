@@ -1,135 +1,290 @@
 var Peer = require('simple-peer')
-// var p = new Peer({ initiator: location.hash === '#1', trickle: false })
 var io = require('socket.io-client');
 
 
 var socket = io();
-
 socket.on('ID', function(socketId) {
-  if (socketId === 1) {
-    console.log('I AM PEER ', socketId);
-    // first offer
-    var p4 = new Peer({ initiator: true, trickle: false })
-    peerHandler(p4, true, 4, socketId);
+navigator.mediaDevices.getUserMedia({ video: true, audio: false })
+  .then(function(stream) {
+      if (socketId === 1) {
+        var p4, p3, p2;
+        console.log('I AM PEER ', socketId);
+        // first offer
+        p4 = new Peer({ 
+          initiator: true,
+          trickle: false,
+          stream: stream,
+          config: { 
+            iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+           })
+        peerHandler(p4, true, 4, socketId);
 
-    // second offer, need to wait for first to finish
-    socket.on('4 connected to 1', function() {
-      var p3 = new Peer({ initiator: true, trickle: false })
-      peerHandler(p3, true, 3, socketId);
-    })
+        // second offer, need to wait for first to finish
+        socket.on('4 connected to 1', function() {
+          p3 = new Peer({ 
+            initiator: true, 
+            trickle: false, 
+            stream: stream, 
+            config: { 
+              iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p3, true, 3, socketId);
+        })
 
-    // third offer, need to wait for first to finish
-    socket.on('3 connected to 1', function() {
-      var p2 = new Peer({ initiator: true, trickle: false })
-      peerHandler(p2, true, 2, socketId);
-    })
-  } else if (socketId === 2) {
-    console.log('I AM PEER ', socketId);
+        // third offer, need to wait for first to finish
+        socket.on('3 connected to 1', function() {
+          p2 = new Peer({ 
+            initiator: true, 
+            trickle: false, 
+            stream: stream, 
+            config: { iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p2, true, 2, socketId);
+        })
 
-    // first offer
-    var p4 = new Peer({ initiator: true, trickle: false })
-    peerHandler(p4, true, 4, socketId); 
-
-    // second offer, need to wait to for first to finish
-    socket.on('4 connected to 2', function(){
-      console.log('peer2 now initializing connection to peer3')
-      var p3 = new Peer({ initiator: true, trickle: false })
-      peerHandler(p3, true, 3, socketId);
-    })
-
-    // answer, need to wait for 3 to finish
-    socket.on('3 connected to 1', function() {
-      var p1 = new Peer({ initiator: false, trickle: false })
-      peerHandler(p1, false, 1, socketId);
-    })
-
-    
-
-    // // var p1 = new Peer({ initiator: false, trickle: false })
-    // peerHandler(p1, false, 1);
-  } else if (socketId === 3) {
-    console.log('I AM PEER ', socketId);
-
-
-    // give offer
-    var p4 = new Peer({ initiator: true, trickle: false })
-    peerHandler(p4, true, 4, socketId);
-
-    // first answer, need to wait for 4 to connect first
-    socket.on('4 connected to 2', function(){
-      console.log("s3 got news of s4/s2 connection, now initializing connection to peer2")
-      var p2 = new Peer({ initiator: false, trickle: false })
-      peerHandler(p2, false, 2, socketId);
-    })
-
-    // second answer need to wait for 4 to connect first
-    socket.on('4 connected to 1', function() {
-      var p1 = new Peer({ initiator: false, trickle: false })
-      peerHandler(p1, false, 1, socketId);
-    })
-    // var p1 = new Peer({ initiator: false, trickle: false })
-
-    // peerHandler(p2, false, 2);
-    // peerHandler(p1, false, 1);
-  } else if (socketId === 4) {
-    console.log('I AM PEER ', socketId);
-
-    socket.on('s3 created', function() {
-      console.log('s4 saw s3 created');
-      // this will recieve offer
-      var p3 = new Peer({ initiator: false, trickle: false })
-      peerHandler(p3, false, 3, socketId);
-    })
-
-    socket.on('s2 created', function() {
-      console.log('s4 saw s2 created');
-      var p2 = new Peer({ initiator: false, trickle: false })
-      peerHandler(p2, false, 2, socketId);
-    })
-
-    socket.on('s1 created', function() {
-      console.log('s4 saw s1 created');
-      var p1 = new Peer({ initiator: false, trickle: false })
-      peerHandler(p1, false, 1, socketId);
-    })
+        document.querySelector('form').addEventListener('submit', function (ev) {
+          ev.preventDefault()
+          console.log('TESTING');
+          p4.send('HELLO FROM PEER 1')
+          p3.send('HELLO FROM PEER 1')
+          p2.send('HELLO FROM PEER 1')
+        })
 
 
+        // socket.on('2 connected to 1', function() {
+        //   socket.emit('send test');
+        // })
 
+      } else if (socketId === 2) {
+        console.log('I AM PEER ', socketId);
+        var p4, p3, p1;
+        // first offer
+        p4 = new Peer({
+          initiator: true,
+          trickle: false,
+          stream: stream,
+          config: {
+            iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+        peerHandler(p4, true, 4, socketId); 
 
-    // socket.on('connected s3', function() {
-    //   console.log('recvieved message')
-    // })
-    // listen();
-    // // socket.on('s3 connected', () => {
-    // var p3 = new Peer({ initiator: false, trickle: false })
-    // peerHandler(p3, false, 3);
+        // second offer, need to wait to for first to finish
+        socket.on('4 connected to 2', function(){
+          // console.log('peer2 now initializing connection to peer3')
+          p3 = new Peer({ 
+            initiator: true, 
+            trickle: false, 
+            stream: stream, 
+            config: { 
+              iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p3, true, 3, socketId);
+        })
 
-    // var p2 = new Peer({ initiator: false, trickle: false })
-    // peerHandler(p2, false, 2);
-    // // })
-    // socket.on('s2 created', () => {
-    //   console.log("s4 got news of s2's creation")
-    // })
+        // answer, need to wait for 3 to finish
+        socket.on('3 connected to 1', function() {
+          p1 = new Peer({ 
+            initiator: false,
+            trickle: false,
+            stream: stream,
+            config: { 
+              iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p1, false, 1, socketId);
+        })
 
+        document.querySelector('form').addEventListener('submit', function (ev) {
+          ev.preventDefault()
+          console.log('TESTING');
+          p4.send('HELLO FROM PEER 2')
+          p3.send('HELLO FROM PEER 2')
+          p1.send('HELLO FROM PEER 2')
+        })
+      } else if (socketId === 3) {
+        console.log('I AM PEER ', socketId);
 
-    // socket.on('connected s3', () => {
-    //   console.log('connected s3')
-    // })
-    // socket.on('s3 offer', (data) => { 
-    // })
+        var p4, p2, p1;
+        // give offer
+        p4 = new Peer({ 
+          initiator: true, 
+          trickle: false,
+          stream: stream,
+          config: { 
+            iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+        peerHandler(p4, true, 4, socketId);
 
-    // var p3 = new Peer({ initiator: false, trickle: false })
-    // var p2 = new Peer({ initiator: false, trickle: false })
-    // var p1 = new Peer({ initiator: false, trickle: false })
+        // first answer, need to wait for 4 to connect first
+        socket.on('4 connected to 2', function(){
+          // console.log("s3 got news of s4/s2 connection, now initializing connection to peer2")
+          p2 = new Peer({ 
+            initiator: false,
+            trickle: false,
+            stream: stream,
+            config: { 
+              iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p2, false, 2, socketId);
+        })
 
-    // peerHandler(p3, false, 3);
-    // peerHandler(p2, false, 2);
-    // peerHandler(p1, false, 1);
-  }
+        // second answer need to wait for 4 to connect first
+        socket.on('4 connected to 1', function() {
+          p1 = new Peer({ 
+            initiator: false,
+            trickle: false,
+            stream: stream,
+            config: { 
+              iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p1, false, 1, socketId);
+        })
+
+        document.querySelector('form').addEventListener('submit', function (ev) {
+          ev.preventDefault()
+          console.log('TESTING');
+          p4.send('HELLO FROM PEER 3')
+          p2.send('HELLO FROM PEER 3')
+          p1.send('HELLO FROM PEER 3')
+        })
+      } else if (socketId === 4) {
+        console.log('I AM PEER ', socketId);
+
+        var p3, p2, p1;
+
+        socket.on('s3 created', function() {
+          // console.log('s4 saw s3 created');
+          // this will recieve offer
+          p3 = new Peer({ 
+            initiator: false,
+            trickle: false,
+            stream: stream,
+            config: { 
+              iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p3, false, 3, socketId);
+        })
+
+        socket.on('s2 created', function() {
+          // console.log('s4 saw s2 created');
+          p2 = new Peer({ 
+            initiator: false,
+            trickle: false,
+            stream: stream,
+            config: { 
+              iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p2, false, 2, socketId);
+        })
+
+        socket.on('s1 created', function() {
+          // console.log('s4 saw s1 created');
+          p1 = new Peer({ 
+            initiator: false,
+            trickle: false,
+            stream: stream,
+            config: { 
+              iceServers: [
+                {url: "stun:stun.l.google.com:19302"},
+                // {url: "stun:stun1.l.google.com:19302"},
+                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+                // {url: "stun:stun3.l.google.com:19302"},
+                // {url: "stun:stun4.l.google.com:19302"},
+              ]
+            }
+          })
+          peerHandler(p1, false, 1, socketId);
+        })
+
+        document.querySelector('form').addEventListener('submit', function (ev) {
+          ev.preventDefault()
+          console.log('TESTING');
+          p3.send('HELLO FROM PEER 4')
+          p2.send('HELLO FROM PEER 4')
+          p1.send('HELLO FROM PEER 4')
+        })
+      }
+    });
 });
 
 function peerHandler(p, initiatorCheck, ID, sID) {
-  console.log("instantiated, ID: ", ID);
+  // console.log("instantiated, ID: ", ID);
   p.on('error', function (err) { console.log('error', err) })
 
   if (!initiatorCheck) {
@@ -141,82 +296,53 @@ function peerHandler(p, initiatorCheck, ID, sID) {
   p.on('connect', function () {
     console.log(sID + ' connected to ' + ID)
     socket.emit(sID + ' connected to ' + ID)
-    p.send('whatever' + Math.random())
+    p.send('HELLO FROM PEER' + sID);
+  })
+
+  socket.on('send test', function() {
+    p.send('HELLO AGAIN FROM PEER' + sID);
   })
 
   p.on('data', function (data) {
     console.log('data: ' + data)
   })
+
+  p.on('stream', function(stream) {
+    var video = document.getElementById(ID);
+    video.src = window.URL.createObjectURL(stream);
+    video.play();
+  })
 };
 
 function peerInitiator(p, ID, sID) {
-  console.log('peer' + sID + ' made initiator for peer' + ID)
+  // console.log('peer' + sID + ' made initiator for peer' + ID)
   socket.on('peer' + ID + ' answer to peer' + sID, function(data) {
     p.signal(JSON.parse(data));
   })
-  // socket.on('accept s'+ID+' answer', function (data){
-  //   console.log('Socket ' + ID + ' recieved an offer');
-  //   p.signal(JSON.parse(data));
-  // })
-
-  // socket.on('accept s1 answer', function (data){
-  //   console.log('Socket ' + ID + ' recieved an answer s1');
-  //   p.signal(JSON.parse(data));
-  // })
-
-  // socket.on('accept s2 answer', function (data){
-  //   console.log('Socket ' + ID + ' recieved an answer s2');
-  //   p.signal(JSON.parse(data));
-  // })
-
-  // socket.on('accept s3 answer', function (data){
-  //   console.log('Socket ' + ID + ' recieved an answer from s3');
-  //   p.signal(JSON.parse(data));
-  // })
 
   p.on('signal', function(data) {
-    console.log('TYPE TEST: ', data.type);
-    // console.log('SIGNAL', JSON.stringify(data))
+    // console.log('TYPE TEST: ', data.type);
     
     if(data.type === 'offer') {
-      console.log('peer' + sID + ' sent offer to peer' + ID)
+      // console.log('peer' + sID + ' sent offer to peer' + ID)
       socket.emit('peer' + sID + ' offer to peer' + ID, JSON.stringify(data));
     }
   })
 };
 
 function peerReciever(p, ID, sID) {
-  console.log('peer' + sID + ' made reciever for peer' + ID)
+  // console.log('peer' + sID + ' made reciever for peer' + ID)
   socket.on('peer' + ID + ' offer to peer' + sID, function(data) {
     p.signal(JSON.parse(data));
   })
-  // socket.on('accept s'+ ID +' offer', function (data){
-  //   console.log('Socket ' + ID + ' recieved an answer');
-  //   p.signal(JSON.parse(data));
-  // })
-
-  // socket.on('accept s3 offer', function (data){
-  //   console.log('Socket ' + ID + ' recieved an offer from s3');
-  //   p.signal(JSON.parse(data));
-  // })
-
-  // socket.on('accept s2 offer', function (data){
-  //   console.log('Socket ' + ID + ' recieved an offer s2');
-  //   p.signal(JSON.parse(data));
-  // })
-
-  // socket.on('accept s4 offer', function (data){
-  //   console.log('Socket ' + ID + ' recieved an offer s4');
-  //   p.signal(JSON.parse(data));
-  // })
 
   p.on('signal', function(data) {
-    console.log('TYPE TEST: ', data.type);
-    // console.log('SIGNAL', JSON.stringify(data))
+    // console.log('TYPE TEST: ', data.type);
 
     if(data.type === 'answer') {
-      console.log('peer' + sID + ' sent answer to peer' + ID);
+      // console.log('peer' + sID + ' sent answer to peer' + ID);
       socket.emit('peer' + sID + ' answer to peer' + ID, JSON.stringify(data));
     }
   })
 };
+
