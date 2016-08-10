@@ -6,9 +6,9 @@ var socket = io();
 socket.on('ID', function(socketId) {
 navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
   .then(function(stream) {
-    var video = document.getElementById(socketId);
-    video.src = window.URL.createObjectURL(stream);
-    video.play();
+    // var video = document.getElementById(socketId);
+    // video.src = window.URL.createObjectURL(stream);
+    // video.play();
 
       if (socketId === 1) {
         var p4, p3, p2;
@@ -299,7 +299,13 @@ function peerHandler(p, initiatorCheck, ID, sID) {
 
   p.on('connect', function () {
     console.log(sID + ' connected to ' + ID)
-    socket.emit(sID + ' connected to ' + ID)
+    // socket.emit(sID + ' connected to ' + ID)
+    // refactor
+    var missive = {
+      from: sID,
+      to: ID,
+    }
+    socket.emit('connected', JSON.stringify(missive));
     p.send('HELLO FROM PEER' + sID);
   })
 
@@ -311,11 +317,11 @@ function peerHandler(p, initiatorCheck, ID, sID) {
     console.log('data: ' + data)
   })
 
-  p.on('stream', function(stream) {
-    var video = document.getElementById(ID);
-    video.src = window.URL.createObjectURL(stream);
-    video.play();
-  })
+  // p.on('stream', function(stream) {
+  //   var video = document.getElementById(ID);
+  //   video.src = window.URL.createObjectURL(stream);
+  //   video.play();
+  // })
 };
 
 function peerInitiator(p, ID, sID) {
@@ -329,7 +335,14 @@ function peerInitiator(p, ID, sID) {
     
     if(data.type === 'offer') {
       // console.log('peer' + sID + ' sent offer to peer' + ID)
-      socket.emit('peer' + sID + ' offer to peer' + ID, JSON.stringify(data));
+      // socket.emit('peer' + sID + ' offer to peer' + ID, JSON.stringify(data));
+      // refactor
+      var missive = {
+        from: sID,
+        to: ID,
+        data,
+      };
+      socket.emit('offer', JSON.stringify(missive));
     }
   })
 };
@@ -344,8 +357,16 @@ function peerReciever(p, ID, sID) {
     // console.log('TYPE TEST: ', data.type);
 
     if(data.type === 'answer') {
+
       // console.log('peer' + sID + ' sent answer to peer' + ID);
-      socket.emit('peer' + sID + ' answer to peer' + ID, JSON.stringify(data));
+      // socket.emit('peer' + sID + ' answer to peer' + ID, JSON.stringify(data));
+      // refactor
+      var missive = {
+        from: sID,
+        to: ID,
+        data,
+      };
+      socket.emit('answer', JSON.stringify(missive))
     }
   })
 };
