@@ -7,9 +7,10 @@ var server = http.createServer(app);
 var io = socketIO.listen(server);
 
 app.use(express.static(__dirname));
+var EXPRESS_PORT = 3000;
 
-server.listen(3000);
-console.log('Listening on port 3000');
+server.listen(process.env.PORT || EXPRESS_PORT);
+console.log('Listening on port, ' + (process.env.PORT || EXPRESS_PORT));
 
 var counter = 4;
 
