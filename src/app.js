@@ -4,8 +4,8 @@ var io = require('socket.io-client');
 
 var socket = io();
 socket.on('ID', function(socketId) {
-navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
-  .then(function(stream) {
+  navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
+    .then(function(stream) {
     // var video = document.getElementById(socketId);
     // video.src = window.URL.createObjectURL(stream);
     // video.play();
@@ -157,14 +157,14 @@ navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 2
           stream: stream,
           config: { 
             iceServers: [
-                {url: "stun:stun.l.google.com:19302"},
-                // {url: "stun:stun1.l.google.com:19302"},
-                // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
-                // {url: "stun:stun3.l.google.com:19302"},
-                // {url: "stun:stun4.l.google.com:19302"},
-              ]
-            }
-          })
+              {url: "stun:stun.l.google.com:19302"},
+              // {url: "stun:stun1.l.google.com:19302"},
+              // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+              // {url: "stun:stun3.l.google.com:19302"},
+              // {url: "stun:stun4.l.google.com:19302"},
+            ]
+          }
+        })
         peerHandler(p4, true, 4, socketId);
 
         // first answer, need to wait for 4 to connect first
