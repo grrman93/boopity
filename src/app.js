@@ -1,14 +1,54 @@
 var Peer = require('simple-peer')
 var io = require('socket.io-client');
 
-
 var socket = io();
+
+socket.on('make initiator', function(data) {
+  var peer = new Peer({ 
+    initiator: true,
+    trickle: false,
+    stream: stream,
+    config: { 
+      iceServers: [
+        {url: "stun:stun.l.google.com:19302"},
+        // {url: "stun:stun1.l.google.com:19302"},
+        // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+        // {url: "stun:stun3.l.google.com:19302"},
+        // {url: "stun:stun4.l.google.com:19302"},
+      ]
+    }
+  });
+
+  peerHandler(peer, true, data.initiator, data.receiver)
+})
+
+socket.on('make receiver', function(data) {
+  var peer = new Peer({ 
+    initiator: false,
+    trickle: false,
+    stream: stream,
+    config: { 
+      iceServers: [
+        {url: "stun:stun.l.google.com:19302"},
+        // {url: "stun:stun1.l.google.com:19302"},
+        // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+        // {url: "stun:stun3.l.google.com:19302"},
+        // {url: "stun:stun4.l.google.com:19302"},
+      ]
+    }
+  });
+
+  peerHandler(peer, false, )
+})
+/*
 socket.on('ID', function(socketId) {
   navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
     .then(function(stream) {
-    // var video = document.getElementById(socketId);
-    // video.src = window.URL.createObjectURL(stream);
-    // video.play();
+    var video = document.getElementById(socketId);
+    console.log(video)
+    console.log('I ama video')
+    video.src = window.URL.createObjectURL(stream);
+    video.play();
 
       if (socketId === 1) {
         var p4, p3, p2;
@@ -286,7 +326,7 @@ socket.on('ID', function(socketId) {
       }
     });
 });
-
+*/
 function peerHandler(p, initiatorCheck, ID, sID) {
   // console.log("instantiated, ID: ", ID);
   p.on('error', function (err) { console.log('error', err) })
@@ -317,11 +357,12 @@ function peerHandler(p, initiatorCheck, ID, sID) {
     console.log('data: ' + data)
   })
 
-  // p.on('stream', function(stream) {
-  //   var video = document.getElementById(ID);
-  //   video.src = window.URL.createObjectURL(stream);
-  //   video.play();
-  // })
+  p.on('stream', function(stream) {
+    console.log('y u no work')
+    var video = document.getElementById(ID);
+    video.src = window.URL.createObjectURL(stream);
+    video.play();
+  })
 };
 
 function peerInitiator(p, ID, sID) {
