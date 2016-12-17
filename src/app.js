@@ -4,10 +4,11 @@ var io = require('socket.io-client');
 var socket = io();
 
 socket.on('make initiator', function(data) {
+  console.log('working on intiator')
   var peer = new Peer({ 
     initiator: true,
     trickle: false,
-    stream: stream,
+    // stream: stream,
     config: { 
       iceServers: [
         {url: "stun:stun.l.google.com:19302"},
@@ -18,15 +19,22 @@ socket.on('make initiator', function(data) {
       ]
     }
   });
+
+  document.querySelector('form').addEventListener('submit', function (ev) {
+    ev.preventDefault()
+    console.log('TESTING');
+    peer.send('HELOOOO')
+  })
 
   peerHandler(peer, true, data.initiator, data.receiver)
 })
 
 socket.on('make receiver', function(data) {
+  console.log('working on receiver')
   var peer = new Peer({ 
     initiator: false,
     trickle: false,
-    stream: stream,
+    // stream: stream,
     config: { 
       iceServers: [
         {url: "stun:stun.l.google.com:19302"},
@@ -37,8 +45,14 @@ socket.on('make receiver', function(data) {
       ]
     }
   });
+  
+  document.querySelector('form').addEventListener('submit', function (ev) {
+    ev.preventDefault()
+    console.log('TESTING');
+    peer.send('HELOOOO')
+  })
 
-  peerHandler(peer, false, )
+  peerHandler(peer, false, data.receiver, data.initiator)
 })
 /*
 socket.on('ID', function(socketId) {
@@ -338,7 +352,7 @@ function peerHandler(p, initiatorCheck, ID, sID) {
   }
 
   p.on('connect', function () {
-    console.log(sID + ' connected to ' + ID)
+    // console.log(sID + ' connected to ' + ID)
     // socket.emit(sID + ' connected to ' + ID)
     // refactor
     var missive = {
@@ -357,12 +371,12 @@ function peerHandler(p, initiatorCheck, ID, sID) {
     console.log('data: ' + data)
   })
 
-  p.on('stream', function(stream) {
-    console.log('y u no work')
-    var video = document.getElementById(ID);
-    video.src = window.URL.createObjectURL(stream);
-    video.play();
-  })
+  // p.on('stream', function(stream) {
+  //   console.log('y u no work')
+  //   var video = document.getElementById(ID);
+  //   video.src = window.URL.createObjectURL(stream);
+  //   video.play();
+  // })
 };
 
 function peerInitiator(p, ID, sID) {
