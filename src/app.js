@@ -3,56 +3,95 @@ var io = require('socket.io-client');
 
 var socket = io();
 
-socket.on('make initiator', function(data) {
-  console.log('working on intiator')
-  var peer = new Peer({ 
-    initiator: true,
-    trickle: false,
-    // stream: stream,
-    config: { 
-      iceServers: [
-        {url: "stun:stun.l.google.com:19302"},
-        // {url: "stun:stun1.l.google.com:19302"},
-        // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
-        // {url: "stun:stun3.l.google.com:19302"},
-        // {url: "stun:stun4.l.google.com:19302"},
-      ]
-    }
+var peers = [];
+
+window.showPeers = function() {
+  console.log(peers);
+}
+
+navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
+  .then(function(stream) {
+
+    var video = document.createElement('video');
+    video.src = window.URL.createObjectURL(stream);
+    video.id = socket.id;
+    document.querySelector('body').append(video);
+    video.play();
+
   });
 
-  document.querySelector('form').addEventListener('submit', function (ev) {
-    ev.preventDefault()
-    console.log('TESTING');
-    peer.send('HELOOOO')
-  })
+socket.on('make initiator', function(data) {
+  navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
+    .then(function(stream) {
 
-  peerHandler(peer, true, data.initiator, data.receiver)
-})
+    // var video = document.createElement('video');
+    // video.src = window.URL.createObjectURL(stream);
+    // video.id = socket.id + ' initiator';
+    // document.querySelector('body').append(video);
+    // video.play();
+
+    console.log('working on intiator')
+    var peer = new Peer({ 
+      initiator: true,
+      trickle: false,
+      stream: stream,
+      config: { 
+        iceServers: [
+          {url: "stun:stun.l.google.com:19302"},
+          // {url: "stun:stun1.l.google.com:19302"},
+          // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+          // {url: "stun:stun3.l.google.com:19302"},
+          // {url: "stun:stun4.l.google.com:19302"},
+        ]
+      }
+    });
+
+    document.querySelector('form').addEventListener('submit', function (ev) {
+      ev.preventDefault()
+      console.log('TESTING');
+      peer.send('HELOOOO')
+    })
+
+    peerHandler(peer, true, data.initiator, data.receiver)
+    peers.push({ peer, init: data.initiator, rec: data.receiver });
+  });
+});
 
 socket.on('make receiver', function(data) {
-  console.log('working on receiver')
-  var peer = new Peer({ 
-    initiator: false,
-    trickle: false,
-    // stream: stream,
-    config: { 
-      iceServers: [
-        {url: "stun:stun.l.google.com:19302"},
-        // {url: "stun:stun1.l.google.com:19302"},
-        // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
-        // {url: "stun:stun3.l.google.com:19302"},
-        // {url: "stun:stun4.l.google.com:19302"},
-      ]
-    }
-  });
-  
-  document.querySelector('form').addEventListener('submit', function (ev) {
-    ev.preventDefault()
-    console.log('TESTING');
-    peer.send('HELOOOO')
-  })
+  navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
+    .then(function(stream) {
 
-  peerHandler(peer, false, data.receiver, data.initiator)
+    // var video = document.createElement('video');
+    // video.src = window.URL.createObjectURL(stream);
+    // video.id = socket.id + ' receiver';
+    // document.querySelector('body').append(video);
+    // video.play();
+
+    console.log('working on receiver')
+    var peer = new Peer({ 
+      initiator: false,
+      trickle: false,
+      stream: stream,
+      config: { 
+        iceServers: [
+          {url: "stun:stun.l.google.com:19302"},
+          // {url: "stun:stun1.l.google.com:19302"},
+          // {url: "stun:stun2.l.google.com:19302"},                                                                                                                              
+          // {url: "stun:stun3.l.google.com:19302"},
+          // {url: "stun:stun4.l.google.com:19302"},
+        ]
+      }
+    });
+
+    document.querySelector('form').addEventListener('submit', function (ev) {
+      ev.preventDefault()
+      console.log('TESTING');
+      peer.send('HELOOOO')
+    })
+
+    peerHandler(peer, false, data.receiver, data.initiator)
+    peers.push({ peer, init: data.initiator, rec: data.receiver });
+  });
 })
 /*
 socket.on('ID', function(socketId) {
@@ -371,12 +410,14 @@ function peerHandler(p, initiatorCheck, ID, sID) {
     console.log('data: ' + data)
   })
 
-  // p.on('stream', function(stream) {
-  //   console.log('y u no work')
-  //   var video = document.getElementById(ID);
-  //   video.src = window.URL.createObjectURL(stream);
-  //   video.play();
-  // })
+  p.on('stream', function(stream) {
+    // console.log('y u no work')
+    var video = document.createElement('video');
+    video.src = window.URL.createObjectURL(stream);
+    video.id = socket.id;
+    document.querySelector('body').append(video);
+    video.play();
+  })
 };
 
 function peerInitiator(p, ID, sID) {
