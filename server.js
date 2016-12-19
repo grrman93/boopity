@@ -108,8 +108,8 @@ Room.prototype._connectPeers = function (userID, socket, queue) {
   var receiver = queue.pop();
   var initiator = userID;
 
-  io.to(initiator).emit('make initiator', { initiator, receiver });
-  io.to(receiver).emit('make receiver', { initiator, receiver });
+  socket.to(initiator).emit('make initiator', { initiator, receiver });
+  socket.to(receiver).emit('make receiver', { initiator, receiver });
 
   if (queue.length > 0) {
     socket.on('connected', connectToOtherSockets);
