@@ -42,6 +42,22 @@ Lobby.prototype.joinRoom = function(roomID, userID, socket) {
   this._rooms[roomID].addUser(userID, socket);
 }
 
+Lobby.prototype.leaveRoom = function(userID, socket) {
+  const roomID = this._getRoomIDFromUserID(userID);
+  console.log('Removing user...')
+  this._rooms[roomID].removeUser(userID, socket);
+}
+
+Lobby.prototype._getRoomIDFromUserID = function(userID) {
+  const keys = Object.keys(this._rooms);
+  for (let i = 0; i < keys.length; i++) {
+    if (this._rooms[keys[i]]._users[userID] !== undefined) {
+      return keys[i];
+    }
+  }
+  return 'user not in room'
+}
+
 // Room class
 var Room = function(roomID) {
   this._ID = roomID;
@@ -67,9 +83,13 @@ Room.prototype.addUser = function(userID, socket) {
   this._users[userID] = true;
 }
 
-Room.prototype.removeUser = function(userID) {
+Room.prototype.removeUser = function(userID, socket) {
   if (this._users[userID] === undefined) { return 'User not in room'}
   delete this._users[userID];
+
+  Object.keys(this._users).forEach(function(user) {
+    socket.broadcast.to(user).emit('remove peer', userID)
+  }.bind(this))
 }
 
 Room.prototype._connectPeers = function (userID, socket, queue) {
@@ -103,29 +123,13 @@ lobby.createRoom('test');
 
 
 io.on('connection', function(socket) {
-  
-  // console.log(counter);
-  // socket.id = counter;
-  // counter--;
-  
-  // socket.emit('ID', socket.id);
-  // console.log('s' + socket.id + ' created')
-  // socket.broadcast.emit('s' + socket.id + ' created')
-
   lobby.joinRoom('test', socket.id, socket)
-  // socket.join('test')
 
   console.log('A user connected with socket id', socket.id);
-  // socket.broadcast.emit('ask');
-  // console.log('asking...')
 
   socket.on('disconnect', function() {
-    // lobby['test'].removeUser(socket.id);
-    //******* TEMPORARY *******//
-    // counter++;
-    // console.log(counter)
-    //************************ //
-    // console.log('A user disconnected with socket id', socket.id);
+    lobby.leaveRoom(socket.id, socket);
+    console.log('A user disconnected with socket id', socket.id);
   });
 
   socket.on('offer', function(missive) {
@@ -138,10 +142,6 @@ io.on('connection', function(socket) {
     socket.broadcast.emit('peer' + missive.from + ' answer to peer' + missive.to, JSON.stringify(missive.data));
   })
 
-  // socket.on('connected', function(missive) {
-  //   missive = JSON.parse(missive);
-  //   socket.broadcast.emit(missive.from + ' connected to ' + missive.to);
-  // })
 })
 
 

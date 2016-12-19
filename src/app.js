@@ -9,6 +9,21 @@ window.showPeers = function() {
   console.log(peers);
 }
 
+socket.on('remove peer', function(targetID) {
+  for (let i = 0; i < peers.length; i++) {
+    if (peers[i].peerID === targetID) {
+      // destroy peer
+      peers[i].peer.destroy();
+      // take out of peers array
+      peers.splice(i, 1);
+      // remove video in DOM
+      const video = document.getElementById(targetID);
+      document.querySelector('body').removeChild(video);
+      break;
+    }
+  }
+});
+
 navigator.mediaDevices.getUserMedia({ video: {width: {max: 320}, height: {max: 240} }, audio: true })
   .then(function(stream) {
 
@@ -48,12 +63,12 @@ socket.on('make initiator', function(data) {
 
     document.querySelector('form').addEventListener('submit', function (ev) {
       ev.preventDefault()
-      console.log('TESTING');
+      console.log('TESTING ev: ', ev);
       peer.send('HELOOOO')
     })
 
     peerHandler(peer, true, data.initiator, data.receiver)
-    peers.push({ peer, init: data.initiator, rec: data.receiver });
+    peers.push({ peer, peerID: data.receiver });
   });
 });
 
@@ -85,12 +100,12 @@ socket.on('make receiver', function(data) {
 
     document.querySelector('form').addEventListener('submit', function (ev) {
       ev.preventDefault()
-      console.log('TESTING');
+      console.log('TESTING poop: ev: ', ev);
       peer.send('HELOOOO')
     })
 
     peerHandler(peer, false, data.receiver, data.initiator)
-    peers.push({ peer, init: data.initiator, rec: data.receiver });
+    peers.push({ peer, peerID: data.initiator });
   });
 })
 /*
@@ -380,6 +395,7 @@ socket.on('ID', function(socketId) {
     });
 });
 */
+// FIX LATER --> ID is me, sID (socket ID) is the other ID
 function peerHandler(p, initiatorCheck, ID, sID) {
   // console.log("instantiated, ID: ", ID);
   p.on('error', function (err) { console.log('error', err) })
@@ -414,7 +430,7 @@ function peerHandler(p, initiatorCheck, ID, sID) {
     // console.log('y u no work')
     var video = document.createElement('video');
     video.src = window.URL.createObjectURL(stream);
-    video.id = socket.id;
+    video.id = sID;
     document.querySelector('body').append(video);
     video.play();
   })
