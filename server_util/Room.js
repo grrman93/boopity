@@ -57,4 +57,13 @@ Room.prototype._connectPeers = function (userID, socket, queue, io) {
   console.log('ID: ', socket.id, ' events: ', socket._events)
 }
 
+// what if I could destroy the socket after the webrtc connection has failed and then just keep a listener on the 
+// webrtc connection to see if I need to open another one.  this would probably mean keeping client ids and socket ids seperat
+// OR just assign the new socket the old socket id upon reopening connection
+// abstract out connecting and disconnecting like you already have Join + connecting now you need onSocketDisconnect -> prod user, reconnect or leave, if stay then reopen connection.  also need to distinguish between disconnecting and leaving....or just have the are you sure you want to leave message? but don't have it get caught in an infinite loop ECHleave?
+
+//also another idea is to only pass one argument, data around as an object.  cleaner
+// another idea is to build an http signalling server for kicks (security reasons?)
+//
+
 module.exports = Room;
